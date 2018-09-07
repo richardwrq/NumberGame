@@ -1,9 +1,7 @@
 package com.example.numbergame
 
 
-data class GroupNumber(private var n1: Int = 0, private var n2: Int = 0, private var n3: Int = 0) {
-
-    var backgroundColor = ""
+data class GroupNumber(var n1: Int = 0, var n2: Int = 0, var n3: Int = 0, var backgroundColor: String = "") {
 
     fun contain(n: Int): Boolean {
         if (!isValid()) {
@@ -33,6 +31,8 @@ data class GroupNumber(private var n1: Int = 0, private var n2: Int = 0, private
     override fun hashCode(): Int {
         return super.hashCode()
     }
+
+    fun clone() = GroupNumber(n1, n2, n3, backgroundColor)
 
     fun clear() {
         n1 = 0

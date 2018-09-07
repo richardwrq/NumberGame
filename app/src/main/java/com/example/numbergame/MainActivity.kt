@@ -6,12 +6,21 @@ import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.view.View
+import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Context.CLIPBOARD_SERVICE
+
+
 
 
 class MainActivity : AppCompatActivity() {
 
     private val numberList = ArrayList<ArrayList<GroupNumber>>()
+
+    private val removedList = ArrayList<GroupNumber>()
 
     private val topList = (0..9).toList()
     private val leftList = (3..13).toList()
@@ -41,12 +50,12 @@ class MainActivity : AppCompatActivity() {
                 numberList.forEach {
                     it.forEach { groupNumber ->
                         if (groupNumber.contain(position)) {
+                            removedList.add(groupNumber.clone())
                             groupNumber.clear()
                         }
                     }
                 }
-                numberList.check()
-                rvCenter.adapter.notifyDataSetChanged()
+                refresh()
             }
 
             override fun onItemLongClick(view: View, position: Int) {
@@ -62,14 +71,14 @@ class MainActivity : AppCompatActivity() {
             override fun onItemClick(view: View, position: Int) {
                 numberList.forEach {
                     it.forEach { groupNumber ->
-                        if (leftList[position] == groupNumber?.sum()) {
+                        if (leftList[position] == groupNumber.sum()) {
+                            removedList.add(groupNumber.clone())
                             groupNumber.clear()
                         }
                     }
 
                 }
-                numberList.check()
-                rvCenter.adapter.notifyDataSetChanged()
+                refresh()
             }
 
             override fun onItemLongClick(view: View, position: Int) {
@@ -77,16 +86,16 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        initNumber()
         rvCenter.layoutManager = GridLayoutManager(this, 8, GridLayoutManager.VERTICAL, false)
         rvCenter.addItemDecoration(MDGridRvDividerDecoration(this))
         val centerAdapter = CenterAdapter(numberList)
         rvCenter.adapter = centerAdapter
         centerAdapter.setOnItemClickListener(object : OnItemClickListener {
             override fun onItemClick(view: View, position: Int) {
-                numberList[position / ROW_COUNT][position % ROW_COUNT].clear()
-                numberList.check()
-                rvCenter.adapter.notifyDataSetChanged()
+                val groupNumber = numberList[position / ROW_COUNT][position % ROW_COUNT]
+                removedList.add(groupNumber.clone())
+                groupNumber.clear()
+                refresh()
             }
 
             override fun onItemLongClick(view: View, position: Int) {
@@ -103,12 +112,12 @@ class MainActivity : AppCompatActivity() {
                 numberList.forEach {
                     it.forEach { groupNumber ->
                         if (rightList[position] == groupNumber.sum()) {
+                            removedList.add(groupNumber.clone())
                             groupNumber.clear()
                         }
                     }
                 }
-                numberList.check()
-                rvCenter.adapter.notifyDataSetChanged()
+                refresh()
             }
 
             override fun onItemLongClick(view: View, position: Int) {
@@ -116,6 +125,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
+        initNumber()
     }
 
     private fun initNumber() {
@@ -123,6 +133,7 @@ class MainActivity : AppCompatActivity() {
         group.forEach { i, _ ->
             addGroupNumber(i)
         }
+        refresh()
     }
 
     private fun addGroupNumber(first: Int) {
@@ -142,6 +153,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun reset(view: View) {
+        removedList.clear()
         initNumber()
         (rvTop.adapter as OtherAdapter).clear()
         (rvLeft.adapter as OtherAdapter).clear()
@@ -151,5 +163,24 @@ class MainActivity : AppCompatActivity() {
         rvTop.adapter.notifyDataSetChanged()
         rvLeft.adapter.notifyDataSetChanged()
         rvRight.adapter.notifyDataSetChanged()
+    }
+
+    fun export(view: View) {
+        val string = removedList.joinToString(separator = " ") { "" + it.n1 + it.n2 + it.n3 }
+        //获取剪贴板管理器：
+        val cm = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        // 创建普通字符型ClipData
+        val mClipData = ClipData.newPlainText("Label", string)
+        // 将ClipData内容放到系统剪贴板里。
+        cm.primaryClip = mClipData
+        Toast.makeText(this, string + "已复制到粘贴板", Toast.LENGTH_SHORT).show()
+    }
+
+    fun refresh() {
+        val groupNumber = numberList.check()
+        tv1.text = "" + groupNumber.n1
+        tv2.text = "" + groupNumber.n2
+        tv3.text = "" + groupNumber.n3
+        rvCenter.adapter.notifyDataSetChanged()
     }
 }
