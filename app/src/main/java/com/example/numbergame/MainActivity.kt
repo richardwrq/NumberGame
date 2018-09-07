@@ -50,7 +50,9 @@ class MainActivity : AppCompatActivity() {
                 numberList.forEach {
                     it.forEach { groupNumber ->
                         if (groupNumber.contain(position)) {
-                            removedList.add(groupNumber.clone())
+                            if (groupNumber.isValid()) {
+                                removedList.add(groupNumber.clone())
+                            }
                             groupNumber.clear()
                         }
                     }
@@ -72,7 +74,9 @@ class MainActivity : AppCompatActivity() {
                 numberList.forEach {
                     it.forEach { groupNumber ->
                         if (leftList[position] == groupNumber.sum()) {
-                            removedList.add(groupNumber.clone())
+                            if (groupNumber.isValid()) {
+                                removedList.add(groupNumber.clone())
+                            }
                             groupNumber.clear()
                         }
                     }
@@ -93,7 +97,9 @@ class MainActivity : AppCompatActivity() {
         centerAdapter.setOnItemClickListener(object : OnItemClickListener {
             override fun onItemClick(view: View, position: Int) {
                 val groupNumber = numberList[position / ROW_COUNT][position % ROW_COUNT]
-                removedList.add(groupNumber.clone())
+                if (groupNumber.isValid()) {
+                    removedList.add(groupNumber.clone())
+                }
                 groupNumber.clear()
                 refresh()
             }
@@ -112,7 +118,9 @@ class MainActivity : AppCompatActivity() {
                 numberList.forEach {
                     it.forEach { groupNumber ->
                         if (rightList[position] == groupNumber.sum()) {
-                            removedList.add(groupNumber.clone())
+                            if (groupNumber.isValid()) {
+                                removedList.add(groupNumber.clone())
+                            }
                             groupNumber.clear()
                         }
                     }
