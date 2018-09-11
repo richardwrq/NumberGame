@@ -1,5 +1,9 @@
 package com.example.numbergame
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.DividerItemDecoration
@@ -8,12 +12,6 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
-import android.content.Context.CLIPBOARD_SERVICE
-
-
 
 
 class MainActivity : AppCompatActivity() {
@@ -182,6 +180,10 @@ class MainActivity : AppCompatActivity() {
         // 将ClipData内容放到系统剪贴板里。
         cm.primaryClip = mClipData
         Toast.makeText(this, string + "已复制到粘贴板", Toast.LENGTH_SHORT).show()
+    }
+
+    fun webview(view: View) {
+        startActivity(Intent(this, WebViewActivity::class.java))
     }
 
     fun refresh() {
