@@ -47,7 +47,7 @@ class WebViewActivity : AppCompatActivity() {
 
                 // 获取解析<meta name="share-description" content="获取到的值">
 //                view.loadUrl("javascript:window.java_obj.showDescription(" + "document.querySelector('meta[name=\"share-description\"]').getAttribute('content')" + ");");
-
+                Log.d("WebViewActivity", "this page url:$url")
                 super.onPageFinished(view, url)
             }
 

@@ -11,7 +11,9 @@ import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import android.widget.Toast
+import com.example.numbergame.utils.CxbHttpUtils
 import kotlinx.android.synthetic.main.activity_main.*
+import java.util.HashMap
 
 
 class MainActivity : AppCompatActivity() {
@@ -172,14 +174,48 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun export(view: View) {
-        val string = removedList.joinToString(separator = " ") { "" + it.n1 + it.n2 + it.n3 }
+        if (removedList.isEmpty()) {
+            Toast.makeText(this, "您尚未选择号码", Toast.LENGTH_SHORT).show()
+            return
+        }
+//        val string = removedList.joinToString(separator = " ") { "" + it.n1 + it.n2 + it.n3 }
         //获取剪贴板管理器：
-        val cm = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+//        val cm = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         // 创建普通字符型ClipData
-        val mClipData = ClipData.newPlainText("Label", string)
+//        val mClipData = ClipData.newPlainText("Label", string)
         // 将ClipData内容放到系统剪贴板里。
-        cm.primaryClip = mClipData
-        Toast.makeText(this, string + "已复制到粘贴板", Toast.LENGTH_SHORT).show()
+//        cm.primaryClip = mClipData
+//        Toast.makeText(this, string + "已复制到粘贴板", Toast.LENGTH_SHORT).show()
+
+        Thread{
+            if (CxbHttpUtils.login("abc1234567", "a123456")) {
+                val params = HashMap<String, String>()
+                params["kenoId"] = "1"
+                params["cart[0][playId]"] = "1" //第一注
+                params["cart[0][dtype]"] = "1" //玩法类型
+                params["cart[0][content]"] = ""
+                params["cart[0][isComplex]"] = "false" //是否混合
+                params["cart[0][pl]"] = "1.99" //赔率
+                params["cart[0][money]"] = "1" //金额
+                if (CxbHttpUtils.batchPost(params)) {
+                    runOnUiThread {
+                        Toast.makeText(this, "下注成功！", Toast.LENGTH_SHORT).show()
+                    }
+                    removedList.clear()
+                } else {
+                    runOnUiThread {
+                        Toast.makeText(this, "下注失败！", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } else {
+                runOnUiThread {
+                    Toast.makeText(this, "登录失败！", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }.start()
+
+
+
     }
 
     fun webview(view: View) {
