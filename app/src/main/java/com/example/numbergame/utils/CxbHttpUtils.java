@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.example.numbergame.Result;
 import com.example.numbergame.config.Config;
 
 import java.util.HashMap;
@@ -94,7 +95,9 @@ public class CxbHttpUtils {
          params.put("cart[1][money]","6");
      *
      */
-    public static boolean batchPost( Map<String,String> params ){
+    public static Result batchPost(Map<String,String> params ){
+        boolean isSuccess = false;
+        String message = "";
         try {
             if( ticket != null ) {
                 String matchId = loadData();
@@ -104,15 +107,18 @@ public class CxbHttpUtils {
                 JSONObject resultJSON = JSON.parseObject(result);
                 boolean hasError = resultJSON.getBoolean("hasError");
                 if( !hasError ){
-                    return true;
+                    isSuccess = true;
+                    message = "下注成功！";
                 }else{
-                    Log.e(Config.TAG,result);
+                    isSuccess = false;
+                    message = "下注失败：" + result;
                 }
             }
         }catch (Exception e){
-            Log.e(Config.TAG,e.getMessage());
+            isSuccess = false;
+            message = "下注失败：" + e.getMessage();
         }
-        return false;
+        return new Result(isSuccess, message);
     }
 
 }

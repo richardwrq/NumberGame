@@ -1,8 +1,5 @@
 package com.example.numbergame
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -13,14 +10,13 @@ import android.view.View
 import android.widget.Toast
 import com.example.numbergame.utils.CxbHttpUtils
 import kotlinx.android.synthetic.main.activity_main.*
-import java.util.HashMap
 
 
 class MainActivity : AppCompatActivity() {
 
     private val numberList = ArrayList<ArrayList<GroupNumber>>()
 
-    private val removedList = ArrayList<GroupNumber>()
+    private val pickedList = ArrayList<GroupNumber>()
 
     private val topList = (0..9).toList()
     private val leftList = (3..13).toList()
@@ -50,9 +46,9 @@ class MainActivity : AppCompatActivity() {
                 numberList.forEach {
                     it.forEach { groupNumber ->
                         if (groupNumber.contain(position)) {
-                            if (groupNumber.isValid()) {
-                                removedList.add(groupNumber.clone())
-                            }
+//                            if (groupNumber.isValid()) {
+//                                pickedList.add(groupNumber.clone())
+//                            }
                             groupNumber.clear()
                         }
                     }
@@ -74,9 +70,9 @@ class MainActivity : AppCompatActivity() {
                 numberList.forEach {
                     it.forEach { groupNumber ->
                         if (leftList[position] == groupNumber.sum()) {
-                            if (groupNumber.isValid()) {
-                                removedList.add(groupNumber.clone())
-                            }
+//                            if (groupNumber.isValid()) {
+//                                pickedList.add(groupNumber.clone())
+//                            }
                             groupNumber.clear()
                         }
                     }
@@ -97,9 +93,9 @@ class MainActivity : AppCompatActivity() {
         centerAdapter.setOnItemClickListener(object : OnItemClickListener {
             override fun onItemClick(view: View, position: Int) {
                 val groupNumber = numberList[position / ROW_COUNT][position % ROW_COUNT]
-                if (groupNumber.isValid()) {
-                    removedList.add(groupNumber.clone())
-                }
+//                if (groupNumber.isValid()) {
+//                    pickedList.add(groupNumber.clone())
+//                }
                 groupNumber.clear()
                 refresh()
             }
@@ -118,9 +114,9 @@ class MainActivity : AppCompatActivity() {
                 numberList.forEach {
                     it.forEach { groupNumber ->
                         if (rightList[position] == groupNumber.sum()) {
-                            if (groupNumber.isValid()) {
-                                removedList.add(groupNumber.clone())
-                            }
+//                            if (groupNumber.isValid()) {
+//                                pickedList.add(groupNumber.clone())
+//                            }
                             groupNumber.clear()
                         }
                     }
@@ -161,7 +157,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun reset(view: View) {
-        removedList.clear()
+        pickedList.clear()
         initNumber()
         (rvTop.adapter as OtherAdapter).clear()
         (rvLeft.adapter as OtherAdapter).clear()
@@ -174,38 +170,37 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun export(view: View) {
-        if (removedList.isEmpty()) {
+        numberList.forEach {
+            it.forEach { groupNumber ->
+                if (groupNumber.isValid() && !pickedList.contains(groupNumber)) {
+                    pickedList.add(groupNumber)
+                }
+            }
+        }
+        pickedList.clearInvalid()
+        if (pickedList.isEmpty()) {
             Toast.makeText(this, "您尚未选择号码", Toast.LENGTH_SHORT).show()
             return
         }
-//        val string = removedList.joinToString(separator = " ") { "" + it.n1 + it.n2 + it.n3 }
-        //获取剪贴板管理器：
-//        val cm = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        // 创建普通字符型ClipData
-//        val mClipData = ClipData.newPlainText("Label", string)
-        // 将ClipData内容放到系统剪贴板里。
-//        cm.primaryClip = mClipData
+//        val string = pickedList.joinToString(separator = " ") { "" + it.n1 + it.n2 + it.n3 }
 //        Toast.makeText(this, string + "已复制到粘贴板", Toast.LENGTH_SHORT).show()
 
         Thread{
             if (CxbHttpUtils.login("abc1234567", "a123456")) {
                 val params = HashMap<String, String>()
                 params["kenoId"] = "1"
-                params["cart[0][playId]"] = "1" //第一注
-                params["cart[0][dtype]"] = "1" //玩法类型
-                params["cart[0][content]"] = ""
-                params["cart[0][isComplex]"] = "false" //是否混合
-                params["cart[0][pl]"] = "1.99" //赔率
-                params["cart[0][money]"] = "1" //金额
-                if (CxbHttpUtils.batchPost(params)) {
-                    runOnUiThread {
-                        Toast.makeText(this, "下注成功！", Toast.LENGTH_SHORT).show()
-                    }
-                    removedList.clear()
-                } else {
-                    runOnUiThread {
-                        Toast.makeText(this, "下注失败！", Toast.LENGTH_SHORT).show()
-                    }
+                pickedList.forEachIndexed { index, groupNumber ->
+                    params["cart[$index][playId]"] = "6" //组6
+                    params["cart[$index][dtype]"] = "0" //玩法类型
+                    params["cart[$index][content]"] = groupNumber.toString()
+                    params["cart[$index][isComplex]"] = "true" //是否混合
+                    params["cart[$index][pl]"] = "150" //赔率
+                    params["cart[$index][money]"] = "1" //金额
+                }
+
+                val result = CxbHttpUtils.batchPost(params)
+                runOnUiThread {
+                    Toast.makeText(this, result.message, Toast.LENGTH_SHORT).show()
                 }
             } else {
                 runOnUiThread {
@@ -214,8 +209,15 @@ class MainActivity : AppCompatActivity() {
             }
         }.start()
 
+    }
 
-
+    private fun ArrayList<GroupNumber>.clearInvalid() {
+        val iterator = iterator()
+        while (iterator.hasNext()) {
+            if (!iterator.next().isValid()) {
+                iterator.remove()
+            }
+        }
     }
 
     fun webview(view: View) {
