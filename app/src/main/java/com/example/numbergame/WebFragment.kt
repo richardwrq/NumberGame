@@ -3,16 +3,30 @@ package com.example.numbergame
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
+import android.support.v4.app.Fragment
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.webkit.*
-import kotlinx.android.synthetic.main.activity_webview.*
+import com.example.numbergame.R.id.wv
+import kotlinx.android.synthetic.main.fragment_webview.*
 
-class WebViewActivity : AppCompatActivity() {
+/**
+ * @author caizeming
+ * @email  caizeming@cvte.com
+ * @date   2018/9/14
+ * @description:
+ */
+class WebFragment : Fragment() {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_webview)
+    var isLogin = false
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return inflater.inflate(R.layout.fragment_webview, null)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         init()
     }
 

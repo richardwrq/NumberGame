@@ -36,7 +36,7 @@ public class CenterAdapter extends RecyclerView.Adapter<ViewHolder> {
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         // 绑定数据
-        GroupNumber number = mData.get(position / MainActivity.getROW_COUNT()).get(position % MainActivity.getROW_COUNT());
+        GroupNumber number = mData.get(position / GameFragment.getROW_COUNT()).get(position % GameFragment.getROW_COUNT());
         if (number != null) {
             holder.itemView.setBackgroundColor(Color.parseColor(number.getBackgroundColor()));
             if (!number.isValid()) {
