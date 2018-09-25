@@ -1,6 +1,7 @@
 package com.example.numbergame
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -11,6 +12,8 @@ import android.view.ViewGroup
 import android.webkit.*
 import com.example.numbergame.R.id.wv
 import kotlinx.android.synthetic.main.fragment_webview.*
+import android.webkit.CookieSyncManager
+
 
 /**
  * @author caizeming
@@ -21,6 +24,7 @@ import kotlinx.android.synthetic.main.fragment_webview.*
 class WebFragment : Fragment() {
 
     var isLogin = false
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_webview, null)
@@ -42,7 +46,14 @@ class WebFragment : Fragment() {
         wv.settings.useWideViewPort = true
         wv.settings.loadWithOverviewMode = true
 
-        wv.loadUrl("https://286.com")
+        wv.loadUrl("https://286.com/login")
+
+        val sp = activity!!.getSharedPreferences("user", Context.MODE_PRIVATE)
+        val userName = sp.getString("userName", "")
+        val pwd = sp.getString("pwd", "")
+
+        val js = "javascript:document.getElementsByTagName('input')[0].value = '$userName';document.getElementsByTagName('input')[1].value = '$pwd';"
+        Log.d("WebViewActivity", "js=$js")
 
         wv.webViewClient = object : WebViewClient() {
 
@@ -55,20 +66,21 @@ class WebFragment : Fragment() {
             }
 
             override fun onPageFinished(view: WebView, url: String) {
-                // 获取页面内容
-                view.loadUrl("javascript:window.java_obj.showSource("
-                        + "document.getElementsByTagName('html')[0].innerHTML);")
 
                 // 获取解析<meta name="share-description" content="获取到的值">
-//                view.loadUrl("javascript:window.java_obj.showDescription(" + "document.querySelector('meta[name=\"share-description\"]').getAttribute('content')" + ");");
-                Log.d("WebViewActivity", "this page url:$url")
+//                view.loadUrl("javascript:window.java_obj.showSource("
+//                        + "document.getElementsByTagName('html')[0].innerHTML);")
+                // 获取页面内容
+//                view.loadUrl("javascript:window.java_obj.showDescription(" + "document.querySelector('meta[name=\"share-description\"]').getAttribute('content')" + ");")
+                Log.d("WebViewActivity", "onPageFinished this page url:$url")
                 super.onPageFinished(view, url)
+                view.loadUrl(js)
             }
 
             override fun onReceivedError(view: WebView?, errorCode: Int, description: String?, failingUrl: String?) {
+                Log.d("WebViewActivity", "onReceivedError ")
                 super.onReceivedError(view, errorCode, description, failingUrl)
             }
-
 
 
             override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest?): WebResourceResponse? {
@@ -92,4 +104,5 @@ class WebFragment : Fragment() {
             Log.d("WebViewActivity", "=====>Description=$string")
         }
     }
+
 }
