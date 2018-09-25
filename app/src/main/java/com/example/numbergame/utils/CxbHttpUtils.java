@@ -35,6 +35,7 @@ public class CxbHttpUtils {
      */
     public static String loginResult = null;
     public static String batchPostResult = null;
+    public static String matchId;
 
     public static boolean login(String userName, String passwd) {
         try {
@@ -104,7 +105,7 @@ public class CxbHttpUtils {
         String message = "";
         try {
             if (ticket != null) {
-                String matchId = loadData();
+                matchId = loadData();
                 params.put("matchId", matchId);
                 String cookie = "ticket=" + ticket;
                 batchPostResult = OkHttpUtil.postForm(Config.batchPostUrl, params, cookie);

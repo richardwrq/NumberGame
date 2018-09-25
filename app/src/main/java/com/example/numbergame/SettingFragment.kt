@@ -70,7 +70,7 @@ class SettingFragment : Fragment() {
                     }
                     val batchPost = CxbHttpUtils.batchPost(params)
                     activity!!.runOnUiThread {
-                        tvCommitResult.text = batchPost.message
+                        tvCommitResult.text =  "第 " + CxbHttpUtils.matchId + " 期" + batchPost.message
                         if (!batchPost.isSuccess &&  CxbHttpUtils.batchPostResult.isEmpty()) {
                             isLogin = false
                             updateViews()
