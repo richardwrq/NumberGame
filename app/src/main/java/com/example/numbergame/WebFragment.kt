@@ -2,17 +2,18 @@ package com.example.numbergame
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Bitmap
+import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.webkit.*
-import com.example.numbergame.R.id.wv
+import android.webkit.JavascriptInterface
+import android.webkit.ValueCallback
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import kotlinx.android.synthetic.main.fragment_webview.*
-import android.webkit.CookieSyncManager
 
 
 /**
@@ -39,12 +40,12 @@ class WebFragment : Fragment() {
 
         wv.settings.javaScriptEnabled = true
         wv.addJavascriptInterface(InJavaScriptLocalObj(), "java_obj")
-        wv.settings.setSupportZoom(true)
-        wv.settings.builtInZoomControls = true
-        wv.settings.domStorageEnabled = true
-        wv.requestFocus()
-        wv.settings.useWideViewPort = true
-        wv.settings.loadWithOverviewMode = true
+//        wv.settings.setSupportZoom(true)
+//        wv.settings.builtInZoomControls = true
+//        wv.settings.domStorageEnabled = true
+//        wv.requestFocus()
+//        wv.settings.useWideViewPort = true
+//        wv.settings.loadWithOverviewMode = true
 
         wv.loadUrl("https://286.com/login")
 
@@ -57,13 +58,6 @@ class WebFragment : Fragment() {
 
         wv.webViewClient = object : WebViewClient() {
 
-            override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
-                return super.onPageStarted(view, url, favicon)
-            }
-
-            override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-                return super.shouldOverrideUrlLoading(view, url)
-            }
 
             override fun onPageFinished(view: WebView, url: String) {
 
@@ -72,23 +66,20 @@ class WebFragment : Fragment() {
 //                        + "document.getElementsByTagName('html')[0].innerHTML);")
                 // 获取页面内容
 //                view.loadUrl("javascript:window.java_obj.showDescription(" + "document.querySelector('meta[name=\"share-description\"]').getAttribute('content')" + ");")
-                Log.d("WebViewActivity", "onPageFinished this page url:$url")
+//                Log.d("WebViewActivity", "onPageFinished this page url:$url")
+//                view.loadUrl(js)
                 super.onPageFinished(view, url)
-                view.loadUrl(js)
-            }
-
-            override fun onReceivedError(view: WebView?, errorCode: Int, description: String?, failingUrl: String?) {
-                Log.d("WebViewActivity", "onReceivedError ")
-                super.onReceivedError(view, errorCode, description, failingUrl)
-            }
-
-
-            override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest?): WebResourceResponse? {
-                if (request != null) {
-                    return shouldInterceptRequest(view, request.url.toString())
+                if( Build.VERSION.SDK_INT >= 19 ){
+                    view.evaluateJavascript(js, ValueCallback {
+                        fun onReceiveValue(value: String){
+                        }
+                    })
+                }else{
+                    view.loadUrl(js)
                 }
-                return null
+
             }
+
         }
     }
 
